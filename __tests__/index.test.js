@@ -8,6 +8,9 @@ const file3 = '__tests__/__fixtures__/file3.json';
 const file4 = '__tests__/__fixtures__/file1.yml';
 const file5 = '__tests__/__fixtures__/file2.yml';
 const file6 = '__tests__/__fixtures__/file3.yml';
+const file7 = '__tests__/__fixtures__/file1.ini';
+const file8 = '__tests__/__fixtures__/file2.ini';
+const file9 = '__tests__/__fixtures__/file3.ini';
 const result1 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result1.txt'), 'utf-8');
 const result2 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result2.txt'), 'utf-8');
 const result3 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result3.txt'), 'utf-8');
@@ -26,4 +29,12 @@ test('compare yml file1 and file2', () => {
 
 test('compare yml file2 and file3', () => {
   expect(compare(file5, file6)).toBe(result4);
+});
+
+test('compare ini file1 and file2', () => {
+  expect(compare(file7, file8)).toBe(result3);
+});
+
+test('compare ini file2 and file3', () => {
+  expect(compare(file8, file9)).toBe(result4);
 });
