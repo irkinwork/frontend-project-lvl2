@@ -5,12 +5,25 @@ import compare from '../src';
 const file1 = '__tests__/__fixtures__/file1.json';
 const file2 = '__tests__/__fixtures__/file2.json';
 const file3 = '__tests__/__fixtures__/file3.json';
+const file4 = '__tests__/__fixtures__/file1.yml';
+const file5 = '__tests__/__fixtures__/file2.yml';
+const file6 = '__tests__/__fixtures__/file3.yml';
 const result1 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result1.txt'), 'utf-8');
 const result2 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result2.txt'), 'utf-8');
+const result3 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result3.txt'), 'utf-8');
+const result4 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result4.txt'), 'utf-8');
 test('compare file1 and file2', () => {
   expect(compare(file1, file2)).toBe(result1);
 });
 
 test('compare file2 and file3', () => {
   expect(compare(file2, file3)).toBe(result2);
+});
+
+test('compare yml file1 and file2', () => {
+  expect(compare(file4, file5)).toBe(result3);
+});
+
+test('compare yml file2 and file3', () => {
+  expect(compare(file5, file6)).toBe(result4);
 });

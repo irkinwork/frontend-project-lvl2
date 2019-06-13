@@ -1,21 +1,22 @@
 import fs from 'fs';
 import path from 'path';
-import { has } from 'lodash';
+import { has, size } from 'lodash';
+import parsers from './parsers';
 
 const compare = (firstConfig, secondConfig) => {
   const file1 = fs.readFileSync(path.resolve(process.cwd(), firstConfig));
   const file2 = fs.readFileSync(path.resolve(process.cwd(), secondConfig));
-  const json1 = JSON.parse(file1);
-  const json2 = JSON.parse(file2);
-  const base = Object.keys(json1).length > Object.keys(json2).length ? json1 : json2;
+  const parsedFile1 = parsers(firstConfig, file1);
+  const parsedFile2 = parsers(firstConfig, file2);
+  const base = size(parsedFile1) > size(parsedFile2) ? parsedFile1 : parsedFile2;
   const difference = Object.keys(base).reduce((acc, item) => {
-    if (!has(json2, item)) {
-      return [...acc, `- ${item}: ${json1[item]}`];
+    if (!has(parsedFile2, item)) {
+      return [...acc, `- ${item}: ${parsedFile1[item]}`];
     }
-    if (json1[item] !== json2[item]) {
-      return [...acc, `- ${item} : ${json1[item]}`, `+ ${item}: ${json2[item]}`];
+    if (parsedFile1[item] !== parsedFile2[item]) {
+      return [...acc, `- ${item} : ${parsedFile1[item]}`, `+ ${item}: ${parsedFile2[item]}`];
     }
-    return [...acc, `${item}: ${json1[item]}`];
+    return [...acc, `${item}: ${parsedFile1[item]}`];
   }, []);
 
   return difference.join('\n');
