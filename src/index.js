@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {has} from 'lodash';
+import { has } from 'lodash';
 
 const compare = (firstConfig, secondConfig) => {
   const file1 = fs.readFileSync(path.resolve(process.cwd(), firstConfig));

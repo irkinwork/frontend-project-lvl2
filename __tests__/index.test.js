@@ -1,6 +1,6 @@
-import compare from '../src';
 import fs from 'fs';
 import path from 'path';
+import compare from '../src';
 
 const file1 = '__tests__/__fixtures__/file1.json';
 const file2 = '__tests__/__fixtures__/file2.json';
