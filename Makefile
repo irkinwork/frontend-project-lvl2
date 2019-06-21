@@ -9,4 +9,4 @@ lint:
 build:
 	npm run build
 test:
-	jest --watch
+	npm run test

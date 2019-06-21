@@ -76,9 +76,11 @@ const compare = (firstConfig, secondConfig) => {
           return {
             ...acc,
             [minusKey]: isObject(diff[key].valueBefore)
-              ? parseInnerValue(diff[key].valueBefore, indent + extraIndentValue) : diff[key].valueBefore,
+              ? parseInnerValue(diff[key].valueBefore, indent + extraIndentValue)
+              : diff[key].valueBefore,
             [plusKey]: isObject(diff[key].valueAfter)
-              ? parseInnerValue(diff[key].valueAfter, indent + extraIndentValue) : diff[key].valueAfter,
+              ? parseInnerValue(diff[key].valueAfter, indent + extraIndentValue)
+              : diff[key].valueAfter,
           };
         default: return {
           ...acc,
