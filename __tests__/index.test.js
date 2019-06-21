@@ -23,10 +23,10 @@ const result5 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result5.tx
 const result6 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result6.txt'), 'utf-8');
 
 test.each([
-  /*[file1, file2, result1],*/
-  /*[file4, file5, result3],*/
-  /*[file7, file8, result3],*/
-  /*[file10, file11, result5]*/,
+  [file1, file2, result1],
+  [file4, file5, result3],
+  [file7, file8, result3],
+  [file10, file11, result5],
   [file12, file13, result6],
 ])(
   '.compare file1 and file2',
