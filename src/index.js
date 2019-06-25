@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import parsers from './parsers';
 import getDiff from './utils/getDiff';
-import renderDiff, { stringify } from './utils/renderDiff';
+import renderTreeDiff, { stringify } from './formatters/tree';
 import renderPlainDiff from './formatters/plain';
 
 const readFile = fileConfig => fs.readFileSync(path.resolve(process.cwd(), fileConfig), 'utf-8');
@@ -14,7 +14,7 @@ const renderList = [
   },
   {
     type: 'tree',
-    render: diff => stringify(renderDiff(diff)),
+    render: diff => stringify(renderTreeDiff(diff)),
   },
 ];
 

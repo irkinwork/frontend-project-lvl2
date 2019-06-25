@@ -11,7 +11,7 @@ const renderInnerValue = (value, indent = indentValue) => Object.keys(value)
       : { ...acc, [indentedKey]: value[key] };
   }, {});
 
-const renderDiff = (diff, indent = 0) => Object.keys(diff)
+const renderTreeDiff = (diff, indent = 0) => Object.keys(diff)
   .reduce((acc, key) => {
     const plusKey = `+ ${key}`;
     const minusKey = `- ${key}`;
@@ -46,7 +46,7 @@ const renderDiff = (diff, indent = 0) => Object.keys(diff)
         };
       default: return {
         ...acc,
-        [simpleKey]: renderDiff(diff[key]),
+        [simpleKey]: renderTreeDiff(diff[key]),
       };
     }
   }, {});
@@ -64,4 +64,4 @@ export const stringify = (diff) => {
 };
 
 
-export default renderDiff;
+export default renderTreeDiff;
