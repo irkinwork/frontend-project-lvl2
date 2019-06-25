@@ -4,6 +4,7 @@ import parsers from './parsers';
 import getDiff from './utils/getDiff';
 import renderTreeDiff, { stringify } from './formatters/tree';
 import renderPlainDiff from './formatters/plain';
+import renderJSONDiff from './formatters/json';
 
 const readFile = fileConfig => fs.readFileSync(path.resolve(process.cwd(), fileConfig), 'utf-8');
 
@@ -15,6 +16,10 @@ const renderList = [
   {
     type: 'tree',
     render: diff => stringify(renderTreeDiff(diff)),
+  },
+  {
+    type: 'json',
+    render: diff => renderJSONDiff(diff),
   },
 ];
 

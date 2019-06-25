@@ -17,6 +17,7 @@ const result3 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result3.tx
 const result5 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result5.txt'), 'utf-8');
 const result6 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result6.txt'), 'utf-8');
 const result7 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result7.txt'), 'utf-8');
+const result8 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result8.json'), 'utf-8');
 
 test.each([
   [file1, file2, result1],
@@ -35,6 +36,12 @@ test('compare file1 and file2', () => {
   const format = 'plain';
   const diff = compare(file10, file11, format);
   expect(diff).toBe(result7);
+});
+
+test('compare file1 and file2', () => {
+  const format = 'json';
+  const diff = compare(file10, file11, format);
+  expect(diff).toBe(result8);
 });
 
 /*

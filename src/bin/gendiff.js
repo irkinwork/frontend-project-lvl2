@@ -7,7 +7,7 @@ const getFormat = (format) => {
   if (format) {
     return format;
   }
-  return '';
+  return 'tree';
 };
 
 program
