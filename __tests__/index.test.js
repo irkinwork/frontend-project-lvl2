@@ -32,13 +32,13 @@ test.each([
   },
 );
 
-test('compare file1 and file2', () => {
+test('show diff in plain', () => {
   const format = 'plain';
   const diff = compare(file10, file11, format);
   expect(diff).toBe(result7);
 });
 
-test('compare file1 and file2', () => {
+test('show diff in json', () => {
   const format = 'json';
   const diff = compare(file10, file11, format);
   expect(diff).toBe(result8);
