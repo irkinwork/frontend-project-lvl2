@@ -3,6 +3,13 @@ import compare from '..';
 
 const program = require('commander');
 
+const getFormat = (format) => {
+  if (format) {
+    return format;
+  }
+  return '';
+};
+
 program
   .description('Compares two configuration files and shows a difference.')
   .arguments('<firstConfig> <secondConfig>')
@@ -12,6 +19,6 @@ program
     if (!program.args.length) {
       program.help();
     }
-    console.log(compare(firstConfig, secondConfig));
+    console.log(compare(firstConfig, secondConfig, getFormat(program.format)));
   });
 program.parse(process.argv);

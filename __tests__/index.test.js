@@ -16,6 +16,7 @@ const result1 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result1.tx
 const result3 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result3.txt'), 'utf-8');
 const result5 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result5.txt'), 'utf-8');
 const result6 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result6.txt'), 'utf-8');
+const result7 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result7.txt'), 'utf-8');
 
 test.each([
   [file1, file2, result1],
@@ -30,10 +31,13 @@ test.each([
   },
 );
 
-/*
 test('compare file1 and file2', () => {
-  expect(compare(file1, file2)).toBe(result1);
+  const format = 'plain';
+  const diff = compare(file10, file11, format);
+  expect(diff).toBe(result7);
 });
+
+/*
 
 test('compare file2 and file3', () => {
   expect(compare(file2, file3)).toBe(result2);

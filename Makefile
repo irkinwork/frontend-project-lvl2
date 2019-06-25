@@ -10,3 +10,5 @@ build:
 	npm run build
 test:
 	npm run test
+publink:
+	make publish && npm link
