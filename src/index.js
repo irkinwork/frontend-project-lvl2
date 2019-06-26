@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import parsers from './parsers';
-import getDiff from './utils/getDiff';
+import getDiff, { getDiff2 } from './utils/getDiff';
 import renderTreeDiff, { stringify } from './formatters/tree';
 import renderPlainDiff from './formatters/plain';
 import renderJSONDiff from './formatters/json';
@@ -32,5 +32,6 @@ export default (firstConfig, secondConfig, format = 'tree') => {
   const parsedFile2 = parsers(secondConfig, file2);
   const calculatedDiff = getDiff(parsedFile1, parsedFile2);
   const { render } = getRender(format);
+  console.log('new', getDiff2(parsedFile1, parsedFile2));
   return render(calculatedDiff);
 };

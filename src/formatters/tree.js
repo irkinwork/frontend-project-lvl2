@@ -63,5 +63,43 @@ export const stringify = (diff) => {
   return `{${iter(diff, extraIndentValue)}\n}`;
 };
 
-
+export const renderTreeDiff2 = (diff, indent = 0) => Object.keys(diff)
+  .reduce((acc, key) => {
+    const plusKey = `+ ${key}`;
+    const minusKey = `- ${key}`;
+    const simpleKey = `  ${key}`;
+    switch (diff[key].status) {
+      case 'unchanged':
+        return {
+          ...acc,
+          [simpleKey]: diff[key].value,
+        };
+      case 'added':
+        return {
+          ...acc,
+          [plusKey]: isObject(diff[key].value)
+            ? renderInnerValue(diff[key].value, indent + extraIndentValue) : diff[key].value,
+        };
+      case 'removed':
+        return {
+          ...acc,
+          [minusKey]: isObject(diff[key].value)
+            ? renderInnerValue(diff[key].value, indent + extraIndentValue) : diff[key].value,
+        };
+      case 'changed':
+        return {
+          ...acc,
+          [minusKey]: isObject(diff[key].valueBefore)
+            ? renderInnerValue(diff[key].valueBefore, indent + extraIndentValue)
+            : diff[key].valueBefore,
+          [plusKey]: isObject(diff[key].valueAfter)
+            ? renderInnerValue(diff[key].valueAfter, indent + extraIndentValue)
+            : diff[key].valueAfter,
+        };
+      default: return {
+        ...acc,
+        [simpleKey]: renderTreeDiff(diff[key]),
+      };
+    }
+  }, {});
 export default renderTreeDiff;
