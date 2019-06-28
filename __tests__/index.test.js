@@ -17,9 +17,9 @@ const iniAfterFlat = '__tests__/__fixtures__/ini/flatAfter.ini';
 const iniBeforeNested = '__tests__/__fixtures__/ini/nestedBefore.ini';
 const iniAfterNested = '__tests__/__fixtures__/ini/nestedAfter.ini';
 
-const resultFlat = fs.readFileSync(path.resolve(__dirname, '__fixtures__/resultFlat.txt'), 'utf-8');
-const resultNestedTree = fs.readFileSync(path.resolve(__dirname, '__fixtures__/resultNestedTree.txt'), 'utf-8');
-const resultNestedPlain = fs.readFileSync(path.resolve(__dirname, '__fixtures__/resultNestedPlain.txt'), 'utf-8');
+const resultFlat = fs.readFileSync(path.resolve(__dirname, '__fixtures__/resultFlat'), 'utf-8');
+const resultNestedTree = fs.readFileSync(path.resolve(__dirname, '__fixtures__/resultNestedTree'), 'utf-8');
+const resultNestedPlain = fs.readFileSync(path.resolve(__dirname, '__fixtures__/resultNestedPlain'), 'utf-8');
 const resultNestedJSON = fs.readFileSync(path.resolve(__dirname, '__fixtures__/resultNestedJSON.json'), 'utf-8');
 
 test('compare flat json files', () => {
