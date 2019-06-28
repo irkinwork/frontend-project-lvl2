@@ -1,12 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 import parsers from './parsers';
-import getDiff from './utils/getDiff';
-import renderTreeDiff, { stringify } from './formatters/tree';
+import getDiff from './getDiff';
+import renderTreeDiff from './formatters/tree';
 import renderPlainDiff from './formatters/plain';
 import renderJSONDiff from './formatters/json';
 
-const readFile = fileConfig => fs.readFileSync(path.resolve(process.cwd(), fileConfig), 'utf-8');
+const readFile = file => fs.readFileSync(path.resolve(process.cwd(), file), 'utf-8');
 
 const renderList = [
   {
@@ -15,7 +15,7 @@ const renderList = [
   },
   {
     type: 'tree',
-    render: diff => stringify(renderTreeDiff(diff)),
+    render: diff => renderTreeDiff(diff),
   },
   {
     type: 'json',
@@ -25,11 +25,11 @@ const renderList = [
 
 const getRender = format => renderList.find(({ type }) => type === format);
 
-export default (firstConfig, secondConfig, format = 'tree') => {
-  const file1 = readFile(firstConfig);
-  const file2 = readFile(secondConfig);
-  const parsedFile1 = parsers(firstConfig, file1);
-  const parsedFile2 = parsers(secondConfig, file2);
+export default (fileName1, fileName2, format = 'tree') => {
+  const file1 = readFile(fileName1);
+  const file2 = readFile(fileName2);
+  const parsedFile1 = parsers(fileName1, file1);
+  const parsedFile2 = parsers(fileName2, file2);
   const calculatedDiff = getDiff(parsedFile1, parsedFile2);
   const { render } = getRender(format);
   return render(calculatedDiff);

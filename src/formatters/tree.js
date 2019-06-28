@@ -1,4 +1,5 @@
-import { isObject } from 'lodash';
+import { isObject, has } from 'lodash';
+import getType from './../dispatcher';
 
 const indentValue = 4;
 const extraIndentValue = 2;
@@ -11,46 +12,100 @@ const renderInnerValue = (value, indent = indentValue) => Object.keys(value)
       : { ...acc, [indentedKey]: value[key] };
   }, {});
 
-const renderTreeDiff = (diff, indent = 0) => Object.keys(diff)
-  .reduce((acc, key) => {
-    const plusKey = `+ ${key}`;
-    const minusKey = `- ${key}`;
-    const simpleKey = `  ${key}`;
-    switch (diff[key].status) {
+const typesList = [
+  {
+    type: 'unchanged',
+    returnValue: (value, key) => {
+      const simpleKey = `  ${key}`;
+      const returnedValue = { [simpleKey]: value };
+      return returnedValue;
+    },
+  },
+  {
+    type: 'added',
+    returnValue: (value, key, indent) => {
+      const plusKey = `+ ${key}`;
+      const returnedValue = {
+        [plusKey]: isObject(value)
+          ? renderInnerValue(value, indent + extraIndentValue) : value,
+      };
+      return returnedValue;
+    },
+  },
+  {
+    type: 'removed',
+    returnValue: (value, key, indent) => {
+      const minusKey = `- ${key}`;
+      const returnedValue = {
+        [minusKey]: isObject(value)
+          ? renderInnerValue(value, indent + extraIndentValue) : value,
+      };
+      return returnedValue;
+    },
+  },
+  {
+    type: 'changed',
+    returnValue: (value, key, indent) => {
+      const plusKey = `+ ${key}`;
+      const minusKey = `- ${key}`;
+      const returnedValue = {
+        [minusKey]: isObject(value.before)
+          ? renderInnerValue(value.before, indent + extraIndentValue)
+          : value.before,
+        [plusKey]: isObject(value.after)
+          ? renderInnerValue(value.after, indent + extraIndentValue)
+          : value.after,
+      };
+      return returnedValue;
+    },
+  },
+];
+
+const renderTreeDiff = (diff, indent = 0) => diff
+  .reduce((acc, node) => {
+    const { name, value, type } = node;
+    const plusKey = `+ ${name}`;
+    const minusKey = `- ${name}`;
+    const simpleKey = `  ${name}`;
+    if (has(node, 'children')) {
+      return { ...acc, [simpleKey]: renderTreeDiff(node.children) };
+    }
+    const { returnValue } = getType(type, typesList);
+    // console.log({ ...acc, ...returnValue(value, name, indent) });
+    return { ...acc, ...returnValue(value, name, indent) };
+    switch (type) {
       case 'unchanged':
         return {
           ...acc,
-          [simpleKey]: diff[key].value,
+          [simpleKey]: value,
         };
       case 'added':
         return {
           ...acc,
-          [plusKey]: isObject(diff[key].value)
-            ? renderInnerValue(diff[key].value, indent + extraIndentValue) : diff[key].value,
+          [plusKey]: isObject(value)
+            ? renderInnerValue(value, indent + extraIndentValue) : value,
         };
       case 'removed':
         return {
           ...acc,
-          [minusKey]: isObject(diff[key].value)
-            ? renderInnerValue(diff[key].value, indent + extraIndentValue) : diff[key].value,
+          [minusKey]: isObject(value)
+            ? renderInnerValue(value, indent + extraIndentValue) : value,
         };
       case 'changed':
         return {
           ...acc,
-          [minusKey]: isObject(diff[key].valueBefore)
-            ? renderInnerValue(diff[key].valueBefore, indent + extraIndentValue)
-            : diff[key].valueBefore,
-          [plusKey]: isObject(diff[key].valueAfter)
-            ? renderInnerValue(diff[key].valueAfter, indent + extraIndentValue)
-            : diff[key].valueAfter,
+          [minusKey]: isObject(value.before)
+            ? renderInnerValue(value.before, indent + extraIndentValue)
+            : value.before,
+          [plusKey]: isObject(value.after)
+            ? renderInnerValue(value.after, indent + extraIndentValue)
+            : value.after,
         };
-      default: return {
-        ...acc,
-        [simpleKey]: renderTreeDiff(diff[key]),
-      };
+      default: break;
     }
+    return acc;
   }, {});
-export const stringify = (diff) => {
+const stringify = (diff) => {
   const iter = (tree, indent) => Object.keys(tree).reduce((acc, key) => {
     const whiteSpaces = `${' '.repeat(indent)}`;
     const extraWhiteSpaces = `${' '.repeat(indent + extraIndentValue)}`;
@@ -64,4 +119,4 @@ export const stringify = (diff) => {
 };
 
 
-export default renderTreeDiff;
+export default diff => stringify(renderTreeDiff(diff));

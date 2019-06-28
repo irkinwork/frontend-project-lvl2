@@ -44,9 +44,7 @@ test('show diff in json', () => {
   expect(diff).toBe(result8);
 });
 
-/*
-
-test('compare file2 and file3', () => {
+/*test('compare file2 and file3', () => {
   expect(compare(file2, file3)).toBe(result2);
 });
 
@@ -64,5 +62,4 @@ test('compare ini file1 and file2', () => {
 
 test('compare ini file2 and file3', () => {
   expect(compare(file8, file9)).toBe(result4);
-});
-*/
+});*/
