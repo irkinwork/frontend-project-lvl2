@@ -1,5 +1,5 @@
-import { isObject, has } from 'lodash';
-import getType from './../dispatcher';
+import { isObject } from 'lodash';
+import getType from '../dispatcher';
 
 const indentValue = 4;
 const extraIndentValue = 2;
@@ -63,48 +63,17 @@ const typesList = [
 
 const renderTreeDiff = (diff, indent = 0) => diff
   .reduce((acc, node) => {
-    const { name, value, type } = node;
-    const plusKey = `+ ${name}`;
-    const minusKey = `- ${name}`;
+    const {
+      name, value, type, children,
+    } = node;
     const simpleKey = `  ${name}`;
-    if (has(node, 'children')) {
-      return { ...acc, [simpleKey]: renderTreeDiff(node.children) };
+    if (type === 'nested') {
+      return { ...acc, [simpleKey]: renderTreeDiff(children) };
     }
     const { returnValue } = getType(type, typesList);
-    // console.log({ ...acc, ...returnValue(value, name, indent) });
     return { ...acc, ...returnValue(value, name, indent) };
-    switch (type) {
-      case 'unchanged':
-        return {
-          ...acc,
-          [simpleKey]: value,
-        };
-      case 'added':
-        return {
-          ...acc,
-          [plusKey]: isObject(value)
-            ? renderInnerValue(value, indent + extraIndentValue) : value,
-        };
-      case 'removed':
-        return {
-          ...acc,
-          [minusKey]: isObject(value)
-            ? renderInnerValue(value, indent + extraIndentValue) : value,
-        };
-      case 'changed':
-        return {
-          ...acc,
-          [minusKey]: isObject(value.before)
-            ? renderInnerValue(value.before, indent + extraIndentValue)
-            : value.before,
-          [plusKey]: isObject(value.after)
-            ? renderInnerValue(value.after, indent + extraIndentValue)
-            : value.after,
-        };
-      default: break;
-    }
-    return acc;
   }, {});
+
 const stringify = (diff) => {
   const iter = (tree, indent) => Object.keys(tree).reduce((acc, key) => {
     const whiteSpaces = `${' '.repeat(indent)}`;

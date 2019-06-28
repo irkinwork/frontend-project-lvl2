@@ -1,6 +1,7 @@
 import path from 'path';
 import yaml from 'js-yaml';
 import ini from 'ini';
+import getParser from './dispatcher';
 
 const parsersList = [
   {
@@ -17,10 +18,8 @@ const parsersList = [
   },
 ];
 
-const getParser = ext => parsersList.find(({ type }) => type === ext);
-
 export default (filename, file) => {
   const ext = path.extname(filename);
-  const { parse } = getParser(ext, file);
+  const { parse } = getParser(ext, parsersList);
   return parse(file);
 };

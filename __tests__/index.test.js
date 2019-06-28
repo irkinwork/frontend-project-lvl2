@@ -2,64 +2,82 @@ import fs from 'fs';
 import path from 'path';
 import compare from '../src';
 
-const file1 = '__tests__/__fixtures__/file1.json';
-const file2 = '__tests__/__fixtures__/file2.json';
-const file4 = '__tests__/__fixtures__/file1.yml';
-const file5 = '__tests__/__fixtures__/file2.yml';
-const file7 = '__tests__/__fixtures__/file1.ini';
-const file8 = '__tests__/__fixtures__/file2.ini';
-const file10 = '__tests__/__fixtures__/before.json';
-const file11 = '__tests__/__fixtures__/after.json';
-const file12 = '__tests__/__fixtures__/before1.json';
-const file13 = '__tests__/__fixtures__/after1.json';
-const result1 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result1.txt'), 'utf-8');
-const result3 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result3.txt'), 'utf-8');
-const result5 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result5.txt'), 'utf-8');
-const result6 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result6.txt'), 'utf-8');
-const result7 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result7.txt'), 'utf-8');
-const result8 = fs.readFileSync(path.resolve(__dirname, '__fixtures__/result8.json'), 'utf-8');
+const jsonBeforeFlat = '__tests__/__fixtures__/json/flatBefore.json';
+const jsonAfterFlat = '__tests__/__fixtures__/json/flatAfter.json';
+const jsonBeforeNested = '__tests__/__fixtures__/json/nestedBefore.json';
+const jsonAfterNested = '__tests__/__fixtures__/json/nestedAfter.json';
 
-test.each([
-  [file1, file2, result1],
-  [file4, file5, result3],
-  [file7, file8, result3],
-  [file10, file11, result5],
-  [file12, file13, result6],
-])(
-  '.compare file1 and file2',
-  (a, b, expected) => {
-    expect(compare(a, b)).toBe(expected);
-  },
-);
+const ymlBeforeFlat = '__tests__/__fixtures__/yml/flatBefore.yml';
+const ymlAfterFlat = '__tests__/__fixtures__/yml/flatAfter.yml';
+const ymlBeforeNested = '__tests__/__fixtures__/yml/nestedBefore.yml';
+const ymlAfterNested = '__tests__/__fixtures__/yml/nestedAfter.yml';
 
-test('show diff in plain', () => {
-  const format = 'plain';
-  const diff = compare(file10, file11, format);
-  expect(diff).toBe(result7);
+const iniBeforeFlat = '__tests__/__fixtures__/ini/flatBefore.ini';
+const iniAfterFlat = '__tests__/__fixtures__/ini/flatAfter.ini';
+const iniBeforeNested = '__tests__/__fixtures__/ini/nestedBefore.ini';
+const iniAfterNested = '__tests__/__fixtures__/ini/nestedAfter.ini';
+
+const resultFlat = fs.readFileSync(path.resolve(__dirname, '__fixtures__/resultFlat.txt'), 'utf-8');
+const resultNestedTree = fs.readFileSync(path.resolve(__dirname, '__fixtures__/resultNestedTree.txt'), 'utf-8');
+const resultNestedPlain = fs.readFileSync(path.resolve(__dirname, '__fixtures__/resultNestedPlain.txt'), 'utf-8');
+const resultNestedJSON = fs.readFileSync(path.resolve(__dirname, '__fixtures__/resultNestedJSON.json'), 'utf-8');
+
+test('compare flat json files', () => {
+  const diff = compare(jsonBeforeFlat, jsonAfterFlat);
+  expect(diff).toBe(resultFlat);
 });
 
-test('show diff in json', () => {
-  const format = 'json';
-  const diff = compare(file10, file11, format);
-  expect(diff).toBe(result8);
+test('compare flat yml files', () => {
+  const diff = compare(ymlBeforeFlat, ymlAfterFlat);
+  expect(diff).toBe(resultFlat);
 });
 
-/*test('compare file2 and file3', () => {
-  expect(compare(file2, file3)).toBe(result2);
+test('compare flat ini files', () => {
+  const diff = compare(iniBeforeFlat, iniAfterFlat);
+  expect(diff).toBe(resultFlat);
 });
 
-test('compare yml file1 and file2', () => {
-  expect(compare(file4, file5)).toBe(result3);
+test('compare nested json files and show tree diff', () => {
+  const diff = compare(jsonBeforeNested, jsonAfterNested);
+  expect(diff).toBe(resultNestedTree);
 });
 
-test('compare yml file2 and file3', () => {
-  expect(compare(file5, file6)).toBe(result4);
+test('compare nested json files and show plain diff', () => {
+  const diff = compare(jsonBeforeNested, jsonAfterNested, 'plain');
+  expect(diff).toBe(resultNestedPlain);
 });
 
-test('compare ini file1 and file2', () => {
-  expect(compare(file7, file8)).toBe(result3);
+test('compare nested json files and show JSON diff', () => {
+  const diff = compare(jsonBeforeNested, jsonAfterNested, 'json');
+  expect(diff).toBe(resultNestedJSON);
 });
 
-test('compare ini file2 and file3', () => {
-  expect(compare(file8, file9)).toBe(result4);
-});*/
+test('compare nested yml files and show tree diff', () => {
+  const diff = compare(ymlBeforeNested, ymlAfterNested);
+  expect(diff).toBe(resultNestedTree);
+});
+
+test('compare nested yml files and show plain diff', () => {
+  const diff = compare(ymlBeforeNested, ymlAfterNested, 'plain');
+  expect(diff).toBe(resultNestedPlain);
+});
+
+test('compare nested yml files and show yml diff', () => {
+  const diff = compare(ymlBeforeNested, ymlAfterNested, 'json');
+  expect(diff).toBe(resultNestedJSON);
+});
+
+test('compare nested ini files and show tree diff', () => {
+  const diff = compare(iniBeforeNested, iniAfterNested);
+  expect(diff).toBe(resultNestedTree);
+});
+
+test('compare nested ini files and show plain diff', () => {
+  const diff = compare(iniBeforeNested, iniAfterNested, 'plain');
+  expect(diff).toBe(resultNestedPlain);
+});
+
+test('compare nested ini files and show json diff', () => {
+  const diff = compare(iniBeforeNested, iniAfterNested, 'json');
+  expect(diff).toBe(resultNestedJSON);
+});

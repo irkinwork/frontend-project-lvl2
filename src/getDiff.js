@@ -5,7 +5,7 @@ const getDiff = (data1, data2) => {
   return Object.keys(commonData)
     .reduce((acc, node) => {
       if (isObject(data1[node]) && isObject(data2[node])) {
-        return [...acc, { name: node, children: getDiff(data1[node], data2[node]) }];
+        return [...acc, { name: node, type: 'nested', children: getDiff(data1[node], data2[node]) }];
       }
       if (!has(data1, node)) {
         return [...acc, { name: node, type: 'added', value: commonData[node] }];
