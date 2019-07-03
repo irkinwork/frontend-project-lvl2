@@ -1,25 +1,15 @@
 import path from 'path';
 import yaml from 'js-yaml';
 import ini from 'ini';
-import getParser from './dispatcher';
 
-const parsersList = [
-  {
-    type: '.json',
-    parse: file => JSON.parse(file),
-  },
-  {
-    type: '.yml',
-    parse: file => yaml.safeLoad(file),
-  },
-  {
-    type: '.ini',
-    parse: file => ini.parse(file),
-  },
-];
+const parsersTree = {
+  '.json': data => JSON.parse(data),
+  '.yml': data => yaml.safeLoad(data),
+  '.ini': data => ini.parse(data),
+};
 
-export default (filename, file) => {
-  const ext = path.extname(filename);
-  const { parse } = getParser(ext, parsersList);
-  return parse(file);
+export default (pathName, data) => {
+  const ext = path.extname(pathName);
+  const parse = parsersTree[ext];
+  return parse(data);
 };

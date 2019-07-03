@@ -1,83 +1,31 @@
-import fs from 'fs';
 import path from 'path';
-import compare from '../src';
+import compare, { readFile } from '../src';
 
-const jsonBeforeFlat = '__tests__/__fixtures__/json/flatBefore.json';
-const jsonAfterFlat = '__tests__/__fixtures__/json/flatAfter.json';
-const jsonBeforeNested = '__tests__/__fixtures__/json/nestedBefore.json';
-const jsonAfterNested = '__tests__/__fixtures__/json/nestedAfter.json';
+const getFullPath = (filePath) => {
+  const ext = path.extname(filePath).slice(1);
+  return path.join('__tests__/__fixtures__/', ext, filePath);
+};
 
-const ymlBeforeFlat = '__tests__/__fixtures__/yml/flatBefore.yml';
-const ymlAfterFlat = '__tests__/__fixtures__/yml/flatAfter.yml';
-const ymlBeforeNested = '__tests__/__fixtures__/yml/nestedBefore.yml';
-const ymlAfterNested = '__tests__/__fixtures__/yml/nestedAfter.yml';
-
-const iniBeforeFlat = '__tests__/__fixtures__/ini/flatBefore.ini';
-const iniAfterFlat = '__tests__/__fixtures__/ini/flatAfter.ini';
-const iniBeforeNested = '__tests__/__fixtures__/ini/nestedBefore.ini';
-const iniAfterNested = '__tests__/__fixtures__/ini/nestedAfter.ini';
-
-const resultFlat = fs.readFileSync(path.resolve(__dirname, '__fixtures__/resultFlat'), 'utf-8');
-const resultNestedTree = fs.readFileSync(path.resolve(__dirname, '__fixtures__/resultNestedTree'), 'utf-8');
-const resultNestedPlain = fs.readFileSync(path.resolve(__dirname, '__fixtures__/resultNestedPlain'), 'utf-8');
-const resultNestedJSON = fs.readFileSync(path.resolve(__dirname, '__fixtures__/resultNestedJSON.json'), 'utf-8');
-
-test('compare flat json files', () => {
-  const diff = compare(jsonBeforeFlat, jsonAfterFlat);
-  expect(diff).toBe(resultFlat);
-});
-
-test('compare flat yml files', () => {
-  const diff = compare(ymlBeforeFlat, ymlAfterFlat);
-  expect(diff).toBe(resultFlat);
-});
-
-test('compare flat ini files', () => {
-  const diff = compare(iniBeforeFlat, iniAfterFlat);
-  expect(diff).toBe(resultFlat);
-});
-
-test('compare nested json files and show tree diff', () => {
-  const diff = compare(jsonBeforeNested, jsonAfterNested);
-  expect(diff).toBe(resultNestedTree);
-});
-
-test('compare nested json files and show plain diff', () => {
-  const diff = compare(jsonBeforeNested, jsonAfterNested, 'plain');
-  expect(diff).toBe(resultNestedPlain);
-});
-
-test('compare nested json files and show JSON diff', () => {
-  const diff = compare(jsonBeforeNested, jsonAfterNested, 'json');
-  expect(diff).toBe(resultNestedJSON);
-});
-
-test('compare nested yml files and show tree diff', () => {
-  const diff = compare(ymlBeforeNested, ymlAfterNested);
-  expect(diff).toBe(resultNestedTree);
-});
-
-test('compare nested yml files and show plain diff', () => {
-  const diff = compare(ymlBeforeNested, ymlAfterNested, 'plain');
-  expect(diff).toBe(resultNestedPlain);
-});
-
-test('compare nested yml files and show yml diff', () => {
-  const diff = compare(ymlBeforeNested, ymlAfterNested, 'json');
-  expect(diff).toBe(resultNestedJSON);
-});
-
-test('compare nested ini files and show tree diff', () => {
-  const diff = compare(iniBeforeNested, iniAfterNested);
-  expect(diff).toBe(resultNestedTree);
-});
-
-test('compare nested ini files and show plain diff', () => {
-  const diff = compare(iniBeforeNested, iniAfterNested, 'plain');
-  expect(diff).toBe(resultNestedPlain);
-});
-
-test('compare nested ini files and show json diff', () => {
-  const diff = compare(iniBeforeNested, iniAfterNested, 'json');
-  expect(diff).toBe(resultNestedJSON);
-});
+test.each([
+  ['flatBefore.json', 'flatAfter.json', 'tree', 'resultFlat'],
+  ['flatBefore.yml', 'flatAfter.yml', 'tree', 'resultFlat'],
+  ['flatBefore.ini', 'flatAfter.ini', 'tree', 'resultFlat'],
+  ['nestedBefore.json', 'nestedAfter.json', 'tree', 'resultNestedTree'],
+  ['nestedBefore.yml', 'nestedAfter.yml', 'tree', 'resultNestedTree'],
+  ['nestedBefore.ini', 'nestedAfter.ini', 'tree', 'resultNestedTree'],
+  ['nestedBefore.json', 'nestedAfter.json', 'plain', 'resultNestedPlain'],
+  ['nestedBefore.yml', 'nestedAfter.yml', 'plain', 'resultNestedPlain'],
+  ['nestedBefore.ini', 'nestedAfter.ini', 'plain', 'resultNestedPlain'],
+  ['nestedBefore.json', 'nestedAfter.json', 'json', 'resultNestedJSON.json'],
+  ['nestedBefore.yml', 'nestedAfter.yml', 'json', 'resultNestedJSON.json'],
+  ['nestedBefore.ini', 'nestedAfter.ini', 'json', 'resultNestedJSON.json'],
+])(
+  'compare %s and %s and show %s diff',
+  (filePath1, filePath2, format, resultPath) => {
+    const fullPath1 = getFullPath(filePath1);
+    const fullPath2 = getFullPath(filePath2);
+    const resulFullPath = path.join('__fixtures__/', resultPath);
+    const result = readFile(path.resolve(__dirname, resulFullPath));
+    expect(compare(fullPath1, fullPath2, format)).toBe(result);
+  },
+);

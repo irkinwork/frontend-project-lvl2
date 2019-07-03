@@ -1,29 +1,16 @@
 import { isObject } from 'lodash';
-import getType from '../dispatcher';
 
 const renderValue = (value) => {
   const renderedValue = isObject(value) ? '[complex value]' : value;
   return renderedValue;
 };
 
-const typesList = [
-  {
-    type: 'unchanged',
-    returnValue: () => '',
-  },
-  {
-    type: 'added',
-    returnValue: (path, value) => `Property '${path}' was added with value: ${renderValue(value)}\n`,
-  },
-  {
-    type: 'removed',
-    returnValue: path => `Property '${path}' was removed\n`,
-  },
-  {
-    type: 'changed',
-    returnValue: (path, value) => `Property '${path}' was changed from '${renderValue(value.before)}' to '${renderValue(value.after)}'\n`,
-  },
-];
+const typesTree = {
+  unchanged: () => '',
+  added: (path, value) => `Property '${path}' was added with value: ${renderValue(value)}\n`,
+  removed: path => `Property '${path}' was removed\n`,
+  changed: (path, value) => `Property '${path}' was changed from '${renderValue(value.before)}' to '${renderValue(value.after)}'\n`,
+};
 
 const renderPlainDiff = (diff, pathConfig) => diff
   .reduce((acc, node) => {
@@ -34,7 +21,7 @@ const renderPlainDiff = (diff, pathConfig) => diff
     if (type === 'nested') {
       return `${acc}${renderPlainDiff(children, newPath)}`;
     }
-    const { returnValue } = getType(type, typesList);
+    const returnValue = typesTree[type];
     return `${acc}${returnValue(newPath, value)}`;
   }, '');
 

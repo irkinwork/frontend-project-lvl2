@@ -1,5 +1,4 @@
 import { isObject } from 'lodash';
-import getType from '../dispatcher';
 
 const indentValue = 4;
 const extraIndentValue = 2;
@@ -12,54 +11,42 @@ const renderInnerValue = (value, indent = indentValue) => Object.keys(value)
       : { ...acc, [indentedKey]: value[key] };
   }, {});
 
-const typesList = [
-  {
-    type: 'unchanged',
-    returnValue: (value, key) => {
-      const simpleKey = `  ${key}`;
-      const returnedValue = { [simpleKey]: value };
-      return returnedValue;
-    },
+const typesTree = {
+  unchanged: (value, key) => {
+    const simpleKey = `  ${key}`;
+    const returnedValue = { [simpleKey]: value };
+    return returnedValue;
   },
-  {
-    type: 'added',
-    returnValue: (value, key, indent) => {
-      const plusKey = `+ ${key}`;
-      const returnedValue = {
-        [plusKey]: isObject(value)
-          ? renderInnerValue(value, indent + extraIndentValue) : value,
-      };
-      return returnedValue;
-    },
+  added: (value, key, indent) => {
+    const plusKey = `+ ${key}`;
+    const returnedValue = {
+      [plusKey]: isObject(value)
+        ? renderInnerValue(value, indent + extraIndentValue) : value,
+    };
+    return returnedValue;
   },
-  {
-    type: 'removed',
-    returnValue: (value, key, indent) => {
-      const minusKey = `- ${key}`;
-      const returnedValue = {
-        [minusKey]: isObject(value)
-          ? renderInnerValue(value, indent + extraIndentValue) : value,
-      };
-      return returnedValue;
-    },
+  removed: (value, key, indent) => {
+    const minusKey = `- ${key}`;
+    const returnedValue = {
+      [minusKey]: isObject(value)
+        ? renderInnerValue(value, indent + extraIndentValue) : value,
+    };
+    return returnedValue;
   },
-  {
-    type: 'changed',
-    returnValue: (value, key, indent) => {
-      const plusKey = `+ ${key}`;
-      const minusKey = `- ${key}`;
-      const returnedValue = {
-        [minusKey]: isObject(value.before)
-          ? renderInnerValue(value.before, indent + extraIndentValue)
-          : value.before,
-        [plusKey]: isObject(value.after)
-          ? renderInnerValue(value.after, indent + extraIndentValue)
-          : value.after,
-      };
-      return returnedValue;
-    },
+  changed: (value, key, indent) => {
+    const plusKey = `+ ${key}`;
+    const minusKey = `- ${key}`;
+    const returnedValue = {
+      [minusKey]: isObject(value.before)
+        ? renderInnerValue(value.before, indent + extraIndentValue)
+        : value.before,
+      [plusKey]: isObject(value.after)
+        ? renderInnerValue(value.after, indent + extraIndentValue)
+        : value.after,
+    };
+    return returnedValue;
   },
-];
+};
 
 const renderTreeDiff = (diff, indent = 0) => diff
   .reduce((acc, node) => {
@@ -70,7 +57,7 @@ const renderTreeDiff = (diff, indent = 0) => diff
     if (type === 'nested') {
       return { ...acc, [simpleKey]: renderTreeDiff(children) };
     }
-    const { returnValue } = getType(type, typesList);
+    const returnValue = typesTree[type];
     return { ...acc, ...returnValue(value, name, indent) };
   }, {});
 
