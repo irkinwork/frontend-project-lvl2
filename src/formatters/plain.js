@@ -7,22 +7,18 @@ const renderValue = (value) => {
 
 const typesTree = {
   unchanged: () => '',
-  added: (path, value) => `Property '${path}' was added with value: ${renderValue(value)}\n`,
+  added: (path, node) => `Property '${path}' was added with value: ${renderValue(node.value)}\n`,
   removed: path => `Property '${path}' was removed\n`,
-  changed: (path, value) => `Property '${path}' was changed from '${renderValue(value.before)}' to '${renderValue(value.after)}'\n`,
+  changed: (path, node) => `Property '${path}' was changed from '${renderValue(node.valueBefore)}' to '${renderValue(node.valueAfter)}'\n`,
+  nested: (path, node, render) => `${render(node.children, path)}`,
 };
 
 const renderPlainDiff = (diff, pathConfig) => diff
   .reduce((acc, node) => {
-    const {
-      name, type, value, children,
-    } = node;
+    const { name, type } = node;
     const newPath = pathConfig ? `${pathConfig}.${name}` : `${name}`;
-    if (type === 'nested') {
-      return `${acc}${renderPlainDiff(children, newPath)}`;
-    }
     const returnValue = typesTree[type];
-    return `${acc}${returnValue(newPath, value)}`;
+    return `${acc}${returnValue(newPath, node, renderPlainDiff)}`;
   }, '');
 
 export default renderPlainDiff;

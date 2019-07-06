@@ -12,12 +12,14 @@ const renderInnerValue = (value, indent = indentValue) => Object.keys(value)
   }, {});
 
 const typesTree = {
-  unchanged: (value, key) => {
+  unchanged: (node) => {
+    const { name: key, value } = node;
     const simpleKey = `  ${key}`;
     const returnedValue = { [simpleKey]: value };
     return returnedValue;
   },
-  added: (value, key, indent) => {
+  added: (node, indent) => {
+    const { name: key, value } = node;
     const plusKey = `+ ${key}`;
     const returnedValue = {
       [plusKey]: isObject(value)
@@ -25,7 +27,8 @@ const typesTree = {
     };
     return returnedValue;
   },
-  removed: (value, key, indent) => {
+  removed: (node, indent) => {
+    const { name: key, value } = node;
     const minusKey = `- ${key}`;
     const returnedValue = {
       [minusKey]: isObject(value)
@@ -33,32 +36,33 @@ const typesTree = {
     };
     return returnedValue;
   },
-  changed: (value, key, indent) => {
+  changed: (node, indent) => {
+    const { name: key, valueBefore, valueAfter } = node;
     const plusKey = `+ ${key}`;
     const minusKey = `- ${key}`;
     const returnedValue = {
-      [minusKey]: isObject(value.before)
-        ? renderInnerValue(value.before, indent + extraIndentValue)
-        : value.before,
-      [plusKey]: isObject(value.after)
-        ? renderInnerValue(value.after, indent + extraIndentValue)
-        : value.after,
+      [minusKey]: isObject(valueBefore)
+        ? renderInnerValue(valueBefore, indent + extraIndentValue)
+        : valueBefore,
+      [plusKey]: isObject(valueAfter)
+        ? renderInnerValue(valueAfter, indent + extraIndentValue)
+        : valueAfter,
     };
+    return returnedValue;
+  },
+  nested: (node, indent, render) => {
+    const { name: key, children } = node;
+    const simpleKey = `  ${key}`;
+    const returnedValue = { [simpleKey]: render(children) };
     return returnedValue;
   },
 };
 
 const renderTreeDiff = (diff, indent = 0) => diff
   .reduce((acc, node) => {
-    const {
-      name, value, type, children,
-    } = node;
-    const simpleKey = `  ${name}`;
-    if (type === 'nested') {
-      return { ...acc, [simpleKey]: renderTreeDiff(children) };
-    }
+    const { type } = node;
     const returnValue = typesTree[type];
-    return { ...acc, ...returnValue(value, name, indent) };
+    return { ...acc, ...returnValue(node, indent, renderTreeDiff) };
   }, {});
 
 const stringify = (diff) => {

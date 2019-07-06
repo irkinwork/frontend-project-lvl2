@@ -20,10 +20,8 @@ const getDiff = (data1, data2) => {
         return [...acc, {
           name: node,
           type: 'changed',
-          value: {
-            before: data1[node],
-            after: data2[node],
-          },
+          valueBefore: data1[node],
+          valueAfter: data2[node],
         }];
       }
       return [...acc, { name: node, type: 'unchanged', value: data1[node] }];

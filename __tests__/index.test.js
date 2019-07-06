@@ -1,5 +1,6 @@
 import path from 'path';
-import compare, { readFile } from '../src';
+import getDiff from '../src';
+import { readFile } from '../src/utils';
 
 const getFullPath = (filePath) => {
   const ext = path.extname(filePath).slice(1);
@@ -26,6 +27,6 @@ test.each([
     const fullPath2 = getFullPath(filePath2);
     const resulFullPath = path.join('__fixtures__/', resultPath);
     const result = readFile(path.resolve(__dirname, resulFullPath));
-    expect(compare(fullPath1, fullPath2, format)).toBe(result);
+    expect(getDiff(fullPath1, fullPath2, format)).toBe(result);
   },
 );
