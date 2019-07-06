@@ -1,82 +1,68 @@
 import { isObject } from 'lodash';
 
-const indentValue = 4;
-const extraIndentValue = 2;
+const initialIndent = 2;
+const extraIndent = 4;
+const addWhiteSpaces = (deep, initial) => `\n${' '.repeat(initial + deep * extraIndent)}`;
 
-const renderInnerValue = (value, indent = indentValue) => Object.keys(value)
+const renderInnerValue = (value, deep) => Object.keys(value)
   .reduce((acc, key) => {
-    const indentedKey = `${' '.repeat(indent)}${key}`;
+    const whiteSpace = addWhiteSpaces(deep, initialIndent);
+    const endingWhiteSpace = addWhiteSpaces(deep, 0);
+    const indentedKey = `${whiteSpace}  ${key}`;
     return isObject(value[key])
-      ? { ...acc, [indentedKey]: renderInnerValue(value[key], indent + indentValue) }
-      : { ...acc, [indentedKey]: value[key] };
-  }, {});
-
-const typesTree = {
-  unchanged: (node) => {
-    const { name: key, value } = node;
-    const simpleKey = `  ${key}`;
-    const returnedValue = { [simpleKey]: value };
-    return returnedValue;
-  },
-  added: (node, indent) => {
-    const { name: key, value } = node;
-    const plusKey = `+ ${key}`;
-    const returnedValue = {
-      [plusKey]: isObject(value)
-        ? renderInnerValue(value, indent + extraIndentValue) : value,
-    };
-    return returnedValue;
-  },
-  removed: (node, indent) => {
-    const { name: key, value } = node;
-    const minusKey = `- ${key}`;
-    const returnedValue = {
-      [minusKey]: isObject(value)
-        ? renderInnerValue(value, indent + extraIndentValue) : value,
-    };
-    return returnedValue;
-  },
-  changed: (node, indent) => {
-    const { name: key, valueBefore, valueAfter } = node;
-    const plusKey = `+ ${key}`;
-    const minusKey = `- ${key}`;
-    const returnedValue = {
-      [minusKey]: isObject(valueBefore)
-        ? renderInnerValue(valueBefore, indent + extraIndentValue)
-        : valueBefore,
-      [plusKey]: isObject(valueAfter)
-        ? renderInnerValue(valueAfter, indent + extraIndentValue)
-        : valueAfter,
-    };
-    return returnedValue;
-  },
-  nested: (node, indent, render) => {
-    const { name: key, children } = node;
-    const simpleKey = `  ${key}`;
-    const returnedValue = { [simpleKey]: render(children) };
-    return returnedValue;
-  },
-};
-
-const renderTreeDiff = (diff, indent = 0) => diff
-  .reduce((acc, node) => {
-    const { type } = node;
-    const returnValue = typesTree[type];
-    return { ...acc, ...returnValue(node, indent, renderTreeDiff) };
-  }, {});
-
-const stringify = (diff) => {
-  const iter = (tree, indent) => Object.keys(tree).reduce((acc, key) => {
-    const whiteSpaces = `${' '.repeat(indent)}`;
-    const extraWhiteSpaces = `${' '.repeat(indent + extraIndentValue)}`;
-    if (isObject(tree[key])) {
-      return `${acc}\n${whiteSpaces}${key}: {${iter(tree[key], indent + indentValue)}\n${extraWhiteSpaces}}`;
-    }
-    return `${acc}\n${whiteSpaces}${key}: ${tree[key]}`;
+      ? `${acc}${indentedKey}: ${renderInnerValue(value[key], deep + 1)}${endingWhiteSpace}`
+      : `${acc}${indentedKey}: ${value[key]}${endingWhiteSpace}`;
   }, '');
 
-  return `{${iter(diff, extraIndentValue)}\n}`;
+const typesTree = {
+  unchanged: (node, deep, whiteSpace) => {
+    const { name: key, value } = node;
+    const simpleKey = `${whiteSpace}  ${key}`;
+    const returnedValue = `${simpleKey}: ${value}`;
+    return returnedValue;
+  },
+  added: (node, deep, whiteSpace) => {
+    const { name: key, value } = node;
+    const plusKey = `${whiteSpace}+ ${key}`;
+    const returnedValue = `${plusKey}: ${isObject(value)
+      ? `{${renderInnerValue(value, deep + 1)}}`
+      : value}`;
+    return returnedValue;
+  },
+  removed: (node, deep, whiteSpace) => {
+    const { name: key, value } = node;
+    const minusKey = `${whiteSpace}- ${key}`;
+    const returnedValue = `${minusKey}: ${isObject(value)
+      ? `{${renderInnerValue(value, deep + 1)}}`
+      : value}`;
+    return returnedValue;
+  },
+  changed: (node, deep, whiteSpace) => {
+    const { name: key, valueBefore, valueAfter } = node;
+    const plusKey = `${whiteSpace}+ ${key}`;
+    const minusKey = `${whiteSpace}- ${key}`;
+    const returnedValue = `${minusKey}: ${isObject(valueBefore)
+      ? `{${renderInnerValue(valueBefore, deep + 1)}}`
+      : valueBefore}${plusKey}: ${isObject(valueAfter)
+      ? `{${renderInnerValue(valueAfter, deep + 1)}}`
+      : valueAfter}`;
+    return returnedValue;
+  },
+  nested: (node, deep, whiteSpace, render) => {
+    const { name: key, children } = node;
+    const simpleKey = `${whiteSpace}  ${key}`;
+    const returnedValue = `${simpleKey}: {${render(children, deep + 1)}${whiteSpace}  }`;
+    return returnedValue;
+  },
 };
 
+const renderTreeDiff = (diff, deep = 0) => diff
+  .reduce((acc, node) => {
+    const { type } = node;
+    const whiteSpace = addWhiteSpaces(deep, initialIndent);
+    const returnValue = typesTree[type];
+    const result = `${acc}${returnValue(node, deep, whiteSpace, renderTreeDiff)}`;
+    return result;
+  }, '');
 
-export default diff => stringify(renderTreeDiff(diff));
+export default diff => `{${renderTreeDiff(diff)}\n}`;
