@@ -52,8 +52,7 @@ const renderTreeDiff = (diff, depth = 0) => diff
     const { type } = node;
     const whiteSpaces = addWhiteSpaces(depth, initialIndent);
     const returnValue = typesTree[type];
-    const result = `${acc}${returnValue(node, whiteSpaces, depth, renderTreeDiff)}`;
-    return result;
+    return `${acc}${returnValue(node, whiteSpaces, depth, renderTreeDiff)}`;
   }, '');
 
 export default diff => `{${renderTreeDiff(diff)}\n}`;
