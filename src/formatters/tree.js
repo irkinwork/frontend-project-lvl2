@@ -43,8 +43,7 @@ const typesTree = {
   nested: (node, whiteSpaces, depth, render) => {
     const { name: key, children } = node;
     const simpleKey = `${whiteSpaces}  ${key}`;
-    const returnedValue = `${simpleKey}: {${render(children, depth + 1)}${whiteSpaces}  }`;
-    return returnedValue;
+    return `${simpleKey}: {${render(children, depth + 1)}${whiteSpaces}  }`;
   },
 };
 
