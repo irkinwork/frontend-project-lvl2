@@ -2,66 +2,58 @@ import { isObject } from 'lodash';
 
 const initialIndent = 2;
 const extraIndent = 4;
-const addWhiteSpaces = (deep, initial) => `\n${' '.repeat(initial + deep * extraIndent)}`;
+const addWhiteSpaces = (depth, initial) => `\n${' '.repeat(initial + depth * extraIndent)}`;
 
-const renderInnerValue = (value, deep) => Object.keys(value)
+const renderInnerValue = (value, depth) => Object.keys(value)
   .reduce((acc, key) => {
-    const whiteSpaces = addWhiteSpaces(deep, initialIndent);
-    const endingWhiteSpaces = addWhiteSpaces(deep, 0);
+    const whiteSpaces = addWhiteSpaces(depth, initialIndent);
+    const endingWhiteSpaces = addWhiteSpaces(depth, 0);
     const indentedKey = `${whiteSpaces}  ${key}`;
     return isObject(value[key])
-      ? `${acc}${indentedKey}: ${renderInnerValue(value[key], deep + 1)}${endingWhiteSpaces}`
+      ? `${acc}${indentedKey}: ${renderInnerValue(value[key], depth + 1)}${endingWhiteSpaces}`
       : `${acc}${indentedKey}: ${value[key]}${endingWhiteSpaces}`;
   }, '');
 
+const stringify = (key, value, depth) => `${key}: ${isObject(value)
+  ? `{${renderInnerValue(value, depth + 1)}}`
+  : value}`;
+
 const typesTree = {
-  unchanged: (node, whiteSpaces) => {
+  unchanged: (node, whiteSpaces, depth) => {
     const { name: key, value } = node;
     const simpleKey = `${whiteSpaces}  ${key}`;
-    const returnedValue = `${simpleKey}: ${value}`;
-    return returnedValue;
+    return stringify(simpleKey, value, depth);
   },
-  added: (node, whiteSpaces, deep) => {
+  added: (node, whiteSpaces, depth) => {
     const { name: key, value } = node;
     const plusKey = `${whiteSpaces}+ ${key}`;
-    const returnedValue = `${plusKey}: ${isObject(value)
-      ? `{${renderInnerValue(value, deep + 1)}}`
-      : value}`;
-    return returnedValue;
+    return stringify(plusKey, value, depth);
   },
-  removed: (node, whiteSpaces, deep) => {
+  removed: (node, whiteSpaces, depth) => {
     const { name: key, value } = node;
     const minusKey = `${whiteSpaces}- ${key}`;
-    const returnedValue = `${minusKey}: ${isObject(value)
-      ? `{${renderInnerValue(value, deep + 1)}}`
-      : value}`;
-    return returnedValue;
+    return stringify(minusKey, value, depth);
   },
-  changed: (node, whiteSpaces, deep) => {
+  changed: (node, whiteSpaces, depth) => {
     const { name: key, valueBefore, valueAfter } = node;
     const plusKey = `${whiteSpaces}+ ${key}`;
     const minusKey = `${whiteSpaces}- ${key}`;
-    const returnedValue = `${minusKey}: ${isObject(valueBefore)
-      ? `{${renderInnerValue(valueBefore, deep + 1)}}`
-      : valueBefore}${plusKey}: ${isObject(valueAfter)
-      ? `{${renderInnerValue(valueAfter, deep + 1)}}`
-      : valueAfter}`;
-    return returnedValue;
+    return `${stringify(minusKey, valueBefore, depth)}${stringify(plusKey, valueAfter, depth)}`;
   },
-  nested: (node, whiteSpaces, deep, render) => {
+  nested: (node, whiteSpaces, depth, render) => {
     const { name: key, children } = node;
     const simpleKey = `${whiteSpaces}  ${key}`;
-    const returnedValue = `${simpleKey}: {${render(children, deep + 1)}${whiteSpaces}  }`;
+    const returnedValue = `${simpleKey}: {${render(children, depth + 1)}${whiteSpaces}  }`;
     return returnedValue;
   },
 };
 
-const renderTreeDiff = (diff, deep = 0) => diff
+const renderTreeDiff = (diff, depth = 0) => diff
   .reduce((acc, node) => {
     const { type } = node;
-    const whiteSpaces = addWhiteSpaces(deep, initialIndent);
+    const whiteSpaces = addWhiteSpaces(depth, initialIndent);
     const returnValue = typesTree[type];
-    const result = `${acc}${returnValue(node, whiteSpaces, deep, renderTreeDiff)}`;
+    const result = `${acc}${returnValue(node, whiteSpaces, depth, renderTreeDiff)}`;
     return result;
   }, '');
 

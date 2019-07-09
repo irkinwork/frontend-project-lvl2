@@ -1,6 +1,6 @@
+import fs from 'fs';
 import path from 'path';
 import getDiff from '../src';
-import { readFile } from '../src/utils';
 
 const getFullPath = (filePath) => {
   const ext = path.extname(filePath).slice(1);
@@ -26,7 +26,7 @@ test.each([
     const fullPath1 = getFullPath(filePath1);
     const fullPath2 = getFullPath(filePath2);
     const resulFullPath = path.join('__fixtures__/', resultPath);
-    const result = readFile(path.resolve(__dirname, resulFullPath));
+    const result = fs.readFileSync(path.resolve(__dirname, resulFullPath), 'utf-8');
     expect(getDiff(fullPath1, fullPath2, format)).toBe(result);
   },
 );
