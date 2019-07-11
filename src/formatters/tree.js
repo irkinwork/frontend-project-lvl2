@@ -7,16 +7,19 @@ const addWhiteSpaces = (depth, initial) => `${' '.repeat(initial + depth * extra
 const renderInnerValue = (value, depth) => Object.keys(value)
   .reduce((acc, key) => {
     const whiteSpaces = addWhiteSpaces(depth, initialIndent);
-    const endingWhiteSpaces = `${addWhiteSpaces(depth, 0)}`;
     const indentedKey = `${whiteSpaces}  ${key}`;
     return isObject(value[key])
-      ? [...acc, `${indentedKey}: {`, `${renderInnerValue(value[key], depth + 1).join('\n')}}`, `${endingWhiteSpaces}`]
-      : [...acc, `${indentedKey}: ${value[key]}`, `${endingWhiteSpaces}`];
+      ? [...acc, `${indentedKey}: {`, renderInnerValue(value[key], depth + 1), `  ${whiteSpaces}}`]
+      : [...acc, `${indentedKey}: ${value[key]}`];
   }, []);
 
-const stringify = (key, value, depth) => `${key}: ${isObject(value)
-  ? `{\n${renderInnerValue(value, depth + 1).join('\n')}}`
-  : value}`;
+const stringify = (key, value, depth) => {
+  const whiteSpaces = addWhiteSpaces(depth, initialIndent);
+  if (isObject(value)) {
+    return [`${key}: {`, renderInnerValue(value, depth + 1), `  ${whiteSpaces}}`];
+  }
+  return `${key}: ${value}`;
+};
 
 const typesTree = {
   unchanged: (node, whiteSpaces, depth) => {
@@ -38,12 +41,12 @@ const typesTree = {
     const { name: key, valueBefore, valueAfter } = node;
     const plusKey = `${whiteSpaces}+ ${key}`;
     const minusKey = `${whiteSpaces}- ${key}`;
-    return [`${stringify(minusKey, valueBefore, depth)}`, `${stringify(plusKey, valueAfter, depth)}`];
+    return [stringify(minusKey, valueBefore, depth), stringify(plusKey, valueAfter, depth)];
   },
   nested: (node, whiteSpaces, depth, render) => {
     const { name: key, children } = node;
     const simpleKey = `${whiteSpaces}  ${key}`;
-    return [`${simpleKey}: {`, `${render(children, depth + 1).join('\n')}`, `${whiteSpaces}  }`];
+    return [`${simpleKey}: {`, render(children, depth + 1), `${whiteSpaces}  }`];
   },
 };
 
