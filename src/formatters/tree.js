@@ -10,8 +10,8 @@ const renderInnerValue = (value, depth) => Object.keys(value)
     const endingWhiteSpaces = `${addWhiteSpaces(depth, 0)}`;
     const indentedKey = `${whiteSpaces}  ${key}`;
     return isObject(value[key])
-      ? flatten([...acc, `${indentedKey}: {`, `${renderInnerValue(value[key], depth + 1).join('\n')}}`, `${endingWhiteSpaces}`])
-      : flatten([...acc, `${indentedKey}: ${value[key]}`, `${endingWhiteSpaces}`]);
+      ? [...acc, `${indentedKey}: {`, `${renderInnerValue(value[key], depth + 1).join('\n')}}`, `${endingWhiteSpaces}`]
+      : [...acc, `${indentedKey}: ${value[key]}`, `${endingWhiteSpaces}`];
   }, []);
 
 const stringify = (key, value, depth) => `${key}: ${isObject(value)
