@@ -2,11 +2,11 @@ import { isObject, flattenDeep } from 'lodash';
 
 const initialIndent = 2;
 const extraIndent = 4;
-const addIndents = (depth, initial) => `${' '.repeat(initial + depth * extraIndent)}`;
+const addIndent = (depth, initial) => `${' '.repeat(initial + depth * extraIndent)}`;
 
 const renderInnerValue = (value, depth) => Object.keys(value)
   .reduce((acc, key) => {
-    const indents = addIndents(depth, initialIndent);
+    const indents = addIndent(depth, initialIndent);
     const indentedKey = `${indents}  ${key}`;
     return isObject(value[key])
       ? [acc, `${indentedKey}: {`, renderInnerValue(value[key], depth + 1), `  ${indents}}`]
@@ -14,7 +14,7 @@ const renderInnerValue = (value, depth) => Object.keys(value)
   }, []);
 
 const stringify = (key, value, depth) => {
-  const indents = addIndents(depth, initialIndent);
+  const indents = addIndent(depth, initialIndent);
   if (isObject(value)) {
     return [`${key}: {`, renderInnerValue(value, depth + 1), `  ${indents}}`];
   }
@@ -53,7 +53,7 @@ const typesTree = {
 const renderTreeDiff = (diff, depth = 0) => diff
   .reduce((acc, node) => {
     const { type } = node;
-    const indents = addIndents(depth, initialIndent);
+    const indents = addIndent(depth, initialIndent);
     const returnValue = typesTree[type];
     return flattenDeep([acc, returnValue(node, indents, depth, renderTreeDiff)]);
   }, []);
