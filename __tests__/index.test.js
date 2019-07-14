@@ -16,8 +16,8 @@ const flat = exts.map(ext => ['flat', ext, 'tree']);
 
 const mapResult = {
   flat: () => 'flatResult',
-  nested: format => `${format}NestedResult`,
-  complexNested: format => `${format}ComplexNestedResult`,
+  nested: type => `${type}NestedResult`,
+  complexNested: type => `${type}ComplexNestedResult`,
 };
 
 test.each([...flat, ...nested, ['complexNested', 'json', 'tree']])(
