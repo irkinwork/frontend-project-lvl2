@@ -14,19 +14,12 @@ const nested = flatten(formats
 
 const flat = exts.map(ext => ['flat', ext, 'tree']);
 
-const resultMapping = {
-  flat: () => 'flatResult',
-  nested: type => `${type}NestedResult`,
-  complexNested: type => `${type}ComplexNestedResult`,
-};
-
 test.each([...flat, ...nested, ['complexNested', 'json', 'tree']])(
   'compare %s %s files and show %s diff',
   (type, ext, format) => {
     const before = getFullPath(`${type}Before`, ext);
     const after = getFullPath(`${type}After`, ext);
-    const getResultName = resultMapping[type];
-    const resultFullPath = path.join('__fixtures__/', getResultName(format));
+    const resultFullPath = path.join('__fixtures__/', `${format}${type}Result`);
     const result = fs.readFileSync(path.resolve(__dirname, resultFullPath), 'utf-8');
     expect(getDiff(before, after, format)).toBe(result);
   },
