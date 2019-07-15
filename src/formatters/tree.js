@@ -51,11 +51,11 @@ const typesTree = {
 };
 
 const renderTreeDiff = (diff, depth = 0) => diff
-  .reduce((acc, node) => {
+  .map((node) => {
     const { type } = node;
     const indent = addIndent(depth, initialIndent);
     const returnValue = typesTree[type];
-    return flattenDeep([acc, returnValue(node, indent, depth, renderTreeDiff)]);
-  }, []);
+    return returnValue(node, indent, depth, renderTreeDiff);
+  });
 
-export default diff => `{\n${renderTreeDiff(diff).join('\n')}\n}`;
+export default diff => `{\n${flattenDeep(renderTreeDiff(diff)).join('\n')}\n}`;
