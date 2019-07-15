@@ -6,56 +6,56 @@ const addIndent = (depth, initial) => `${' '.repeat(initial + depth * extraInden
 
 const renderInnerValue = (value, depth) => Object.keys(value)
   .reduce((acc, key) => {
-    const indents = addIndent(depth, initialIndent);
-    const indentedKey = `${indents}  ${key}`;
+    const indent = addIndent(depth, initialIndent);
+    const indentedKey = `${indent}  ${key}`;
     return isObject(value[key])
-      ? [acc, `${indentedKey}: {`, renderInnerValue(value[key], depth + 1), `  ${indents}}`]
+      ? [acc, `${indentedKey}: {`, renderInnerValue(value[key], depth + 1), `  ${indent}}`]
       : [acc, `${indentedKey}: ${value[key]}`];
   }, []);
 
 const stringify = (key, value, depth) => {
-  const indents = addIndent(depth, initialIndent);
+  const indent = addIndent(depth, initialIndent);
   if (isObject(value)) {
-    return [`${key}: {`, renderInnerValue(value, depth + 1), `  ${indents}}`];
+    return [`${key}: {`, renderInnerValue(value, depth + 1), `  ${indent}}`];
   }
   return `${key}: ${value}`;
 };
 
 const typesTree = {
-  unchanged: (node, indents, depth) => {
+  unchanged: (node, indent, depth) => {
     const { name: key, value } = node;
-    const simpleKey = `${indents}  ${key}`;
+    const simpleKey = `${indent}  ${key}`;
     return stringify(simpleKey, value, depth);
   },
-  added: (node, indents, depth) => {
+  added: (node, indent, depth) => {
     const { name: key, value } = node;
-    const plusKey = `${indents}+ ${key}`;
+    const plusKey = `${indent}+ ${key}`;
     return stringify(plusKey, value, depth);
   },
-  removed: (node, indents, depth) => {
+  removed: (node, indent, depth) => {
     const { name: key, value } = node;
-    const minusKey = `${indents}- ${key}`;
+    const minusKey = `${indent}- ${key}`;
     return stringify(minusKey, value, depth);
   },
-  changed: (node, indents, depth) => {
+  changed: (node, indent, depth) => {
     const { name: key, valueBefore, valueAfter } = node;
-    const plusKey = `${indents}+ ${key}`;
-    const minusKey = `${indents}- ${key}`;
+    const plusKey = `${indent}+ ${key}`;
+    const minusKey = `${indent}- ${key}`;
     return [stringify(minusKey, valueBefore, depth), stringify(plusKey, valueAfter, depth)];
   },
-  nested: (node, indents, depth, render) => {
+  nested: (node, indent, depth, render) => {
     const { name: key, children } = node;
-    const simpleKey = `${indents}  ${key}`;
-    return [`${simpleKey}: {`, render(children, depth + 1), `  ${indents}}`];
+    const simpleKey = `${indent}  ${key}`;
+    return [`${simpleKey}: {`, render(children, depth + 1), `  ${indent}}`];
   },
 };
 
 const renderTreeDiff = (diff, depth = 0) => diff
   .reduce((acc, node) => {
     const { type } = node;
-    const indents = addIndent(depth, initialIndent);
+    const indent = addIndent(depth, initialIndent);
     const returnValue = typesTree[type];
-    return flattenDeep([acc, returnValue(node, indents, depth, renderTreeDiff)]);
+    return flattenDeep([acc, returnValue(node, indent, depth, renderTreeDiff)]);
   }, []);
 
 export default diff => `{\n${renderTreeDiff(diff).join('\n')}\n}`;
